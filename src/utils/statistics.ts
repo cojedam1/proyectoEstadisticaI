@@ -118,7 +118,7 @@ export function calculateQualitativeStats(rawValues: any[]): QualitativeStats {
   const topCategory = frequencies[0];
   const secondCategory = frequencies.length > 1 ? frequencies[1] : null;
 
-  let interpretation = `Se procesaron un total de ${validCount} respuestas válidas (${missingCount > 0 ? `${missingCount} valores omitidos/nulos` : '100% de tasa de completitud'}). `;
+  let interpretation = `Se procesaron un total de ${validCount} respuestas válidas (${missingCount > 0 ? `${missingCount} valores presentan errores` : '100% de los datos procesados correctamente'}). `;
   if (modes.length === 1) {
     interpretation += `La categoría predominante o moda es "${topCategory.label}", con ${topCategory.absoluteFrequency} menciones, representando el ${topCategory.percentage}% del total de la muestra. `;
   } else {
@@ -394,7 +394,7 @@ export function calculateQuantitativeStats(
   // Grouped Frequency Table (Sturges Rule)
   const sturgesKRaw = 1 + 3.322 * Math.log10(n);
   const sturgesK = customK || Math.max(3, Math.min(15, Math.ceil(sturgesKRaw)));
-  
+
   // Class width
   let classWidth = customBinWidth || (range === 0 ? 1 : range / sturgesK);
   if (!customBinWidth) {
@@ -493,31 +493,29 @@ export function calculateQuantitativeStats(
     : (modalBin.classMark || 0);
 
   // Natural Language Statistical Interpretations
-  const cvDescription = cv < 10 
+  const cvDescription = cv < 10
     ? `muy baja (${roundTo(cv, 1)}%), lo que denota una muestra sumamente homogénea con baja dispersión relativa.`
     : cv <= 30
-    ? `moderada (${roundTo(cv, 1)}%), mostrando una dispersión típica representativa alrededor de la media.`
-    : `alta (${roundTo(cv, 1)}%), indicando una notable heterogeneidad y variabilidad entre los encuestados.`;
+      ? `moderada (${roundTo(cv, 1)}%), mostrando una dispersión típica representativa alrededor de la media.`
+      : `alta (${roundTo(cv, 1)}%), indicando una notable heterogeneidad y variabilidad entre los encuestados.`;
 
-  const centralTendencyInterp = `El valor promedio obtenido es de media x̄ = ${roundTo(mean, 2)}, con una mediana de Me = ${roundTo(median, 2)} (el 50% de los encuestados se sitúa en o por debajo de este valor). ${
-    modeType === 'unimodal'
-      ? `La moda es de Mo = ${modes[0]}, siendo el valor más repetido con una frecuencia de ${maxFreq} observaciones (${roundTo((maxFreq / n) * 100, 1)}%).`
-      : modeType === 'bimodal'
+  const centralTendencyInterp = `El valor promedio obtenido es de media x̄ = ${roundTo(mean, 2)}, con una mediana de Me = ${roundTo(median, 2)} (el 50% de los encuestados se sitúa en o por debajo de este valor). ${modeType === 'unimodal'
+    ? `La moda es de Mo = ${modes[0]}, siendo el valor más repetido con una frecuencia de ${maxFreq} observaciones (${roundTo((maxFreq / n) * 100, 1)}%).`
+    : modeType === 'bimodal'
       ? `Se identificó una distribución bimodal en los valores ${modes.join(' y ')}, ambos con ${maxFreq} repeticiones.`
       : modeType === 'multimodal'
-      ? `Se detectaron múltiples picos modales en los valores ${modes.join(', ')}.`
-      : `No existe un valor modal único (distribución amodal/uniforme).`
-  }`;
+        ? `Se detectaron múltiples picos modales en los valores ${modes.join(', ')}.`
+        : `No existe un valor modal único (distribución amodal/uniforme).`
+    }`;
 
   const variabilityInterp = `Los valores oscilan entre un mínimo de ${min} y un máximo de ${max}, generando un rango de R = ${roundTo(range, 2)}. La desviación estándar muestral es de s = ${roundTo(sampleStdDev, 2)} (varianza muestral s² = ${roundTo(sampleVariance, 2)}), con un coeficiente de variación CV = ${roundTo(cv, 1)}%. Esto refleja una dispersión ${cvDescription} El rango intercuartílico es de RIC = ${roundTo(iqr, 2)} unidades.`;
 
   const positionInterp = `El primer cuartil (Q₁ / P₂₅) es de ${roundTo(q1, 2)}, indicando que el 25% de los datos es menor o igual a este valor. El 50% central de la muestra se encuentra comprendido entre Q₁ = ${roundTo(q1, 2)} y Q₃ = ${roundTo(q3, 2)}. El 10% inferior se sitúa por debajo de P₁₀ = ${roundTo(p10, 2)} y el 10% superior supera P₉₀ = ${roundTo(p90, 2)}.`;
 
-  const shapeAndOutliersInterp = `${skewnessInterpretation} ${kurtosisInterpretation} ${
-    outliers.length > 0
-      ? `Mediante la regla de 1.5×RIC de Tukey se identificaron ${outliers.length} valores atípicos fuera del intervalo [${roundTo(lowerOutlierLimit, 2)}, ${roundTo(upperOutlierLimit, 2)}]: ${outliers.slice(0, 5).join(', ')}${outliers.length > 5 ? '...' : ''}.`
-      : `No se identificaron valores atípicos según los límites de Tukey [${roundTo(lowerOutlierLimit, 2)}, ${roundTo(upperOutlierLimit, 2)}].`
-  }`;
+  const shapeAndOutliersInterp = `${skewnessInterpretation} ${kurtosisInterpretation} ${outliers.length > 0
+    ? `Mediante la regla de 1.5×RIC de Tukey se identificaron ${outliers.length} valores atípicos fuera del intervalo [${roundTo(lowerOutlierLimit, 2)}, ${roundTo(upperOutlierLimit, 2)}]: ${outliers.slice(0, 5).join(', ')}${outliers.length > 5 ? '...' : ''}.`
+    : `No se identificaron valores atípicos según los límites de Tukey [${roundTo(lowerOutlierLimit, 2)}, ${roundTo(upperOutlierLimit, 2)}].`
+    }`;
 
   const executiveSummary = `Variable cuantitativa procesada sobre ${n} observaciones válidas. Media = ${roundTo(mean, 2)}, Mediana = ${roundTo(median, 2)}, Desv. Est. = ${roundTo(sampleStdDev, 2)}, CV = ${roundTo(cv, 1)}%. Distribución ${skewnessType.toLowerCase()} y ${kurtosisType.toLowerCase()}.`;
 

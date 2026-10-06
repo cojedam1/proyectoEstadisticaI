@@ -29,11 +29,101 @@ ChartJS.register(
   Legend
 );
 
+const SkewnessGraphic: React.FC<{ type: string; skewness: number }> = ({ type }) => {
+  const isPos = type.includes('positiva');
+  const isNeg = type.includes('negativa');
+
+  let curvePath = 'M 10 50 C 70 50, 95 10, 120 10 C 145 10, 170 50, 230 50';
+  let fillPath = 'M 10 50 C 70 50, 95 10, 120 10 C 145 10, 170 50, 230 50 L 230 52 L 10 52 Z';
+  let peakX = 120;
+  let label = 'Simétrica (x̄ ≈ Me ≈ Mo)';
+
+  if (isPos) {
+    curvePath = 'M 10 50 C 35 50, 50 10, 75 10 C 110 10, 155 48, 230 50';
+    fillPath = 'M 10 50 C 35 50, 50 10, 75 10 C 110 10, 155 48, 230 50 L 230 52 L 10 52 Z';
+    peakX = 75;
+    label = 'Sesgo a la derecha (x̄ > Me)';
+  } else if (isNeg) {
+    curvePath = 'M 10 50 C 85 48, 130 10, 165 10 C 190 10, 205 50, 230 50';
+    fillPath = 'M 10 50 C 85 48, 130 10, 165 10 C 190 10, 205 50, 230 50 L 230 52 L 10 52 Z';
+    peakX = 165;
+    label = 'Sesgo a la izquierda (x̄ < Me)';
+  }
+
+  return (
+    <div style={{ marginTop: '10px', background: '#090d16', padding: '8px 10px', borderRadius: '6px', border: '1px solid #1e293b' }}>
+      <svg viewBox="0 0 240 68" style={{ width: '100%', height: '58px', display: 'block' }}>
+        <defs>
+          <linearGradient id="amberGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
+        <line x1="10" y1="50" x2="230" y2="50" stroke="#475569" strokeWidth="1" />
+        <path d={fillPath} fill="url(#amberGrad)" />
+        <path d={curvePath} fill="none" stroke="#fbbf24" strokeWidth="2.2" strokeLinecap="round" />
+        <line x1={peakX} y1="10" x2={peakX} y2="50" stroke="#fbbf24" strokeWidth="1" strokeDasharray="2,2" opacity="0.7" />
+        <circle cx={peakX} cy="10" r="2.5" fill="#fbbf24" />
+        <text x="120" y="64" textAnchor="middle" fill="#94a3b8" fontSize="8.5" fontFamily="sans-serif">
+          {label}
+        </text>
+      </svg>
+    </div>
+  );
+};
+
+const KurtosisGraphic: React.FC<{ type: string; kurtosis: number }> = ({ type }) => {
+  const isLepto = type.includes('Leptocúrtica');
+  const isPlati = type.includes('Platicúrtica');
+
+  const mesoCurve = 'M 10 50 C 70 50, 95 18, 120 18 C 145 18, 170 50, 230 50';
+
+  let curvePath = mesoCurve;
+  let fillPath = 'M 10 50 C 70 50, 95 18, 120 18 C 145 18, 170 50, 230 50 L 230 52 L 10 52 Z';
+  let peakY = 18;
+  let label = 'Mesocúrtica (Normal, g₂ ≈ 0)';
+
+  if (isLepto) {
+    curvePath = 'M 10 50 C 85 50, 105 6, 120 6 C 135 6, 155 50, 230 50';
+    fillPath = 'M 10 50 C 85 50, 105 6, 120 6 C 135 6, 155 50, 230 50 L 230 52 L 10 52 Z';
+    peakY = 6;
+    label = 'Leptocúrtica (Apuntada, g₂ > 0.5)';
+  } else if (isPlati) {
+    curvePath = 'M 10 50 C 55 50, 85 28, 120 28 C 155 28, 185 50, 230 50';
+    fillPath = 'M 10 50 C 55 50, 85 28, 120 28 C 155 28, 185 50, 230 50 L 230 52 L 10 52 Z';
+    peakY = 28;
+    label = 'Platicúrtica (Aplanada, g₂ < -0.5)';
+  }
+
+  return (
+    <div style={{ marginTop: '10px', background: '#090d16', padding: '8px 10px', borderRadius: '6px', border: '1px solid #1e293b' }}>
+      <svg viewBox="0 0 240 68" style={{ width: '100%', height: '58px', display: 'block' }}>
+        <defs>
+          <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
+        <line x1="10" y1="50" x2="230" y2="50" stroke="#475569" strokeWidth="1" />
+        {(isLepto || isPlati) && (
+          <path d={mesoCurve} fill="none" stroke="#475569" strokeWidth="1" strokeDasharray="3,3" opacity="0.7" />
+        )}
+        <path d={fillPath} fill="url(#skyGrad)" />
+        <path d={curvePath} fill="none" stroke="#38bdf8" strokeWidth="2.2" strokeLinecap="round" />
+        <line x1="120" y1={peakY} x2="120" y2="50" stroke="#38bdf8" strokeWidth="1" strokeDasharray="2,2" opacity="0.7" />
+        <circle cx="120" cy={peakY} r="2.5" fill="#38bdf8" />
+        <text x="120" y="64" textAnchor="middle" fill="#94a3b8" fontSize="8.5" fontFamily="sans-serif">
+          {label}
+        </text>
+      </svg>
+    </div>
+  );
+};
+
 export const App: React.FC = () => {
   const [dataset, setDataset] = useState<SurveyDataset>(() => getDefaultSurveyDataset());
   const [activeTab, setActiveTab] = useState<'analysis' | 'table' | 'report'>('analysis');
   const [selectedColIndex, setSelectedColIndex] = useState<number>(1);
-  const [useGroupedTable, setUseGroupedTable] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Filter out pure timestamp metadata column
@@ -78,7 +168,7 @@ export const App: React.FC = () => {
 
   // Chart setup
   const activeTable = isQuantitative
-    ? (useGroupedTable ? quantStats?.groupedFrequencies : quantStats?.ungroupedFrequencies)
+    ? quantStats?.ungroupedFrequencies
     : qualStats?.frequencies;
 
   const chartLabels = activeTable?.map(f => f.label) || [];
@@ -231,19 +321,16 @@ export const App: React.FC = () => {
                     <div className="stat-chip">
                       <div className="stat-chip-label">Media Aritmética (x̄)</div>
                       <div className="stat-chip-val" style={{ color: '#818cf8' }}>{roundTo(quantStats.mean, 2)}</div>
-                      <div className="stat-chip-sub">Promedio general</div>
                     </div>
                     <div className="stat-chip">
                       <div className="stat-chip-label">Mediana (Me)</div>
                       <div className="stat-chip-val" style={{ color: '#fbbf24' }}>{roundTo(quantStats.median, 2)}</div>
-                      <div className="stat-chip-sub">Punto medio (50%)</div>
                     </div>
                     <div className="stat-chip">
                       <div className="stat-chip-label">Moda (Mo)</div>
                       <div className="stat-chip-val">
                         {quantStats.mode.length > 0 ? quantStats.mode.join(', ') : 'Amodal'}
                       </div>
-                      <div className="stat-chip-sub">Valor más frecuente ({quantStats.modeFrequency} obs.)</div>
                     </div>
                   </div>
                 </div>
@@ -257,27 +344,22 @@ export const App: React.FC = () => {
                     <div className="stat-chip">
                       <div className="stat-chip-label">Rango (R)</div>
                       <div className="stat-chip-val">{roundTo(quantStats.range, 2)}</div>
-                      <div className="stat-chip-sub">Máx - Mín</div>
                     </div>
                     <div className="stat-chip">
                       <div className="stat-chip-label">Varianza (s²)</div>
                       <div className="stat-chip-val" style={{ color: '#34d399' }}>{roundTo(quantStats.sampleVariance, 2)}</div>
-                      <div className="stat-chip-sub">Varianza muestral</div>
                     </div>
                     <div className="stat-chip">
                       <div className="stat-chip-label">Desviación Estándar (s)</div>
                       <div className="stat-chip-val" style={{ color: '#34d399' }}>{roundTo(quantStats.sampleStdDev, 2)}</div>
-                      <div className="stat-chip-sub">Dispersión respecto a media</div>
                     </div>
                     <div className="stat-chip">
                       <div className="stat-chip-label">Coeficiente de Variación</div>
                       <div className="stat-chip-val" style={{ color: '#38bdf8' }}>{roundTo(quantStats.coefficientOfVariation, 1)}%</div>
-                      <div className="stat-chip-sub">Variabilidad relativa</div>
                     </div>
                     <div className="stat-chip">
-                      <div className="stat-chip-label">Rango Intercuartílico (RIC)</div>
+                      <div className="stat-chip-label">Rango Intercuartil (RIC)</div>
                       <div className="stat-chip-val">{roundTo(quantStats.interquartileRange, 2)}</div>
-                      <div className="stat-chip-sub">Q3 - Q1</div>
                     </div>
                   </div>
                 </div>
@@ -346,6 +428,7 @@ export const App: React.FC = () => {
                           {quantStats.skewnessType}
                         </span>
                       </div>
+                      <SkewnessGraphic type={quantStats.skewnessType} skewness={quantStats.skewness} />
                     </div>
 
                     <div className="stat-chip">
@@ -357,6 +440,7 @@ export const App: React.FC = () => {
                           {quantStats.kurtosisType}
                         </span>
                       </div>
+                      <KurtosisGraphic type={quantStats.kurtosisType} kurtosis={quantStats.kurtosis} />
                     </div>
                   </div>
                 </div>
@@ -366,23 +450,8 @@ export const App: React.FC = () => {
                   {/* 10.2.A Tabla de Frecuencias */}
                   <div className="section-box">
                     <div className="section-header" style={{ color: '#ffffff' }}>
-                      <span>10.2.A Distribución de Frecuencias</span>
-                      <div className="toggle-btn-group">
-                        <button
-                          type="button"
-                          className={`toggle-opt-btn ${!useGroupedTable ? 'active' : ''}`}
-                          onClick={() => setUseGroupedTable(false)}
-                        >
-                          No Agrupada
-                        </button>
-                        <button
-                          type="button"
-                          className={`toggle-opt-btn ${useGroupedTable ? 'active' : ''}`}
-                          onClick={() => setUseGroupedTable(true)}
-                        >
-                          Agrupada (Sturges)
-                        </button>
-                      </div>
+                      <span>10.2.A Tabla de Frecuencias</span>
+                      <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Total: {quantStats.validCount} respuestas</span>
                     </div>
 
                     <div className="freq-table-wrapper">
@@ -390,7 +459,7 @@ export const App: React.FC = () => {
                         <thead>
                           <tr>
                             <th>#</th>
-                            <th>{useGroupedTable ? 'Intervalo [Li - Ls)' : 'Valor (xi)'}</th>
+                            <th>Valor (xi)</th>
                             <th className="text-right">Frec. Absoluta (fi)</th>
                             <th className="text-right">Frec. Acumulada (Fi)</th>
                             <th className="text-right">Frec. Relativa (hi)</th>
@@ -520,7 +589,7 @@ export const App: React.FC = () => {
                   {/* 11. Gráfico Requerido */}
                   <div className="section-box" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div className="section-header blue">
-                      <span>11. Gráfico Estadístico Apropiado</span>
+                      <span>11. Gráfico Estadístico</span>
                       <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Distribución de frecuencias</span>
                     </div>
 
