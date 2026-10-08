@@ -118,7 +118,7 @@ export function calculateQualitativeStats(rawValues: any[]): QualitativeStats {
   const topCategory = frequencies[0];
   const secondCategory = frequencies.length > 1 ? frequencies[1] : null;
 
-  let interpretation = `Se procesaron un total de ${validCount} respuestas válidas (${missingCount > 0 ? `${missingCount} valores presentan errores` : '100% de los datos procesados correctamente'}). `;
+  let interpretation = `Se procesaron un total de ${validCount} respuestas válidas (${missingCount > 0 ? `${missingCount} respuestas han quedado en blanco, y no se han tomado en cuenta para el calculo` : '100% de los datos procesados correctamente'}). `;
   if (modes.length === 1) {
     interpretation += `La categoría predominante o moda es "${topCategory.label}", con ${topCategory.absoluteFrequency} menciones, representando el ${topCategory.percentage}% del total de la muestra. `;
   } else {
